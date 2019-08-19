@@ -1,0 +1,7 @@
+# Object files.
+*.elf
+*.o
+
+# Other files.
+*.log
+*.swp
