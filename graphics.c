@@ -53,6 +53,8 @@ int main(int argc, char* argv[]) {
 	// Map parameters.
 	struct terrain_parameters map_params;
 	init_terrain_parameters(&map_params);
+	//map_params.grade_x = 0.9;
+	//map_params.grade_y = 0.9;
 
 	bool SDL_error = false;
 	//if (gui) {
@@ -68,7 +70,7 @@ int main(int argc, char* argv[]) {
 
 	int n = map_params.resolution;
 	height_t* height_map = malloc(n * n * sizeof(height_t));
-	map_generate(height_map, map_params, 0, 0);
+	map_create(height_map, map_params, n, n, 2);
 	
 	//TODO:error checking.
 	if (gui) {
@@ -101,7 +103,7 @@ int main(int argc, char* argv[]) {
 		};
 
 */
-		uint32_t* display = map_trim(height_map, map_params, 1366, 768);
+		//uint32_t* display = map_trim(height_map, &map_params, 1366, 768);
 		//uint32_t* display = malloc(1366 * 768 * sizeof(uint32_t));
 /*
 		for (int i = 0; i < (1366 * 768); ++i) {
@@ -115,7 +117,7 @@ int main(int argc, char* argv[]) {
 		}
 */
 // ---
-		SDL_UpdateTexture(texture, NULL, display, 1366 * sizeof(int));
+		SDL_UpdateTexture(texture, NULL, height_map, 1366 * sizeof(int));
 
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -147,13 +149,15 @@ int main(int argc, char* argv[]) {
 		}
 		printf("\n");
 
-		height_t* display = map_trim(height_map, map_params, 16, 9);
+		/*
+		height_t* display = map_trim(height_map, &map_params, 16, 9);
 		for (int r = 0; r < 9; ++r) {
 			for (int c = 0; c < 16; ++c) {
 				printf("%3d", display[(r * 16) + c]);
 			};
 			printf("\n");
 		}
+		*/
 	};
 
 	return 0;

@@ -1,10 +1,10 @@
 typedef int height_t;
 
 struct terrain_parameters {
+	unsigned int seed;
 	int resolution;
 	int height;
 	int noise;
-	unsigned int seed;
 	// enforce grade range of [-1, 1].
 	float grade_x; 
 	float grade_y;
@@ -13,7 +13,8 @@ struct terrain_parameters {
 
 void init_terrain_parameters(struct terrain_parameters* params);
 
-void map_generate(height_t* height_map, struct terrain_parameters params, int x_dim, int y_dim);
+//height_t* map_trim(height_t* height_map, struct terrain_parameters* params_p, int x, int y);
 
-height_t* map_trim(height_t* height_map, struct terrain_parameters params, int x, int y);
+void map_create(height_t* height_map, struct terrain_parameters params, int x, int y, int scale);
+
 
