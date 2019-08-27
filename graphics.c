@@ -52,6 +52,7 @@ int main(int argc, char* argv[]) {
 
 	// Map parameters.
 	struct terrain_parameters map_params;
+	init_terrain_parameters(&map_params);
 
 	bool SDL_error = false;
 	//if (gui) {
@@ -61,11 +62,13 @@ int main(int argc, char* argv[]) {
 			if (!strcmp(argv[i], "-r")) map_params.resolution = atoi(argv[i + 1]);
 			if (!strcmp(argv[i], "-h")) map_params.height = atoi(argv[i + 1]); 
 			if (!strcmp(argv[i], "-n")) map_params.noise = atoi(argv[i + 1]); 
+			if (!strcmp(argv[i], "-s")) map_params.seed = atoi(argv[i + 1]); 
 		}
 	//};
 
-	int* height_map = malloc(map_params.resolution * map_params.resolution * sizeof(int*));
-	map_generate(height_map, map_params);
+	int n = map_params.resolution;
+	height_t* height_map = malloc(n * n * sizeof(height_t));
+	map_generate(height_map, map_params, 0, 0);
 	
 	//TODO:error checking.
 	if (gui) {
@@ -98,7 +101,8 @@ int main(int argc, char* argv[]) {
 		};
 
 */
-		uint32_t * display = malloc(1366 * 768 * sizeof(uint32_t));
+		uint32_t* display = map_trim(height_map, map_params, 1366, 768);
+		//uint32_t* display = malloc(1366 * 768 * sizeof(uint32_t));
 /*
 		for (int i = 0; i < (1366 * 768); ++i) {
 			set_pixel(d1 + i, 255, 150, 150, 0);
@@ -135,9 +139,18 @@ int main(int argc, char* argv[]) {
 			return 1;
 		};
 	}else { 
-		for (int i = 0; i < map_params.resolution; ++i) {
-			for (int j = 0; j < map_params.resolution; ++j) {
-				printf("%3d", height_map[i * map_params.resolution + j]);
+		for (int r = 0; r < map_params.resolution; ++r) {
+			for (int c = 0; c < map_params.resolution; ++c) {
+				printf("%3d", height_map[r * map_params.resolution + c]);
+			};
+			printf("\n");
+		}
+		printf("\n");
+
+		height_t* display = map_trim(height_map, map_params, 16, 9);
+		for (int r = 0; r < 9; ++r) {
+			for (int c = 0; c < 16; ++c) {
+				printf("%3d", display[(r * 16) + c]);
 			};
 			printf("\n");
 		}
