@@ -13,8 +13,6 @@ struct terrain_parameters {
 
 void init_terrain_parameters(struct terrain_parameters* params);
 
-//height_t* map_trim(height_t* height_map, struct terrain_parameters* params_p, int x, int y);
-
 height_t* map_create(struct terrain_parameters params, int x, int y, int scale);
 
 

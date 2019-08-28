@@ -141,7 +141,7 @@ height_t* map_create(struct terrain_parameters params, int x, int y, int scale) 
 
 	// Get minimum power of 2 necessary for display dimensions.
 	if (x && y) params.resolution = 
-	  ((int)pow(2, floor(log10((double)(x > y ? x : y)) / log10(2)) + 1.0)) + 1;
+	  ((int)pow(2, floor(log10((double)((x - 2) > (y - 2) ? x - 2 : y - 2)) / log10(2)) + 1.0)) + 1;
 
 	height_t* height_map = malloc(params.resolution * params.resolution * sizeof(height_t));
 	terrain_generate(height_map, &params);

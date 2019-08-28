@@ -71,12 +71,10 @@ int main(int argc, char* argv[]) {
 
 	struct terrain_parameters map_params;
 	init_terrain_parameters(&map_params);
-	//map_params.grade_x = 0.9;
-	//map_params.grade_y = 0.9;
 
 	struct meta_data map_meta;
-	map_meta.length_x = 18;
-	map_meta.length_y = 60;
+	map_meta.length_x = 6;
+	map_meta.length_y = 6;
 
 	bool SDL_error = false;
 	//if (gui) {
