@@ -1,9 +1,9 @@
 #include <stdlib.h>
+#include <math.h>
 #include <time.h>
 
 #include "terrain_generator.h"
-
-	#include <stdio.h>
+#include <stdio.h>
 
 void init_terrain_parameters(struct terrain_parameters* params_p) {
 	params_p->resolution = 2;
@@ -17,7 +17,6 @@ void init_terrain_parameters(struct terrain_parameters* params_p) {
 
 //TODO: do smoothing
 //TODO: heigh limit
-
 // 'limit' must be greater than 0.
 height_t limit_height(double value, int limit) {
 	return (height_t)value;
@@ -28,7 +27,6 @@ double probability() {
 }
 
 void square(height_t* height_map, struct terrain_parameters* params_p, int row, int col, int chunk_size, int noise_scale) {
-
 	height_t sum;
 	sum = height_map[(row - chunk_size / 2) * params_p->resolution + (col - chunk_size / 2)];
 	sum += height_map[(row + chunk_size / 2) * params_p->resolution + (col + chunk_size / 2)];
@@ -76,14 +74,14 @@ void terrain_generate(height_t* height_map, struct terrain_parameters* params_p)
 	double noise_scale = (double)params_p->noise;
 
 	//TODO: find good way to initialize.
-	float elevation = ((float)params_p->height / 2.0) * probability(); 
+	float lift = ((float)params_p->height / 2.0) * probability(); 
 	float m_x = params_p->grade_x;
 	float m_y = params_p->grade_y;
 	float h = (float)params_p->height / 2.0;
-	height_map[0] = (height_t)(elevation + ((-(m_x+ m_y) / 2.0) * h));
-	height_map[chunk_size] = (height_t)(elevation + (((m_x - m_y) / 2.0) * h));
-	height_map[chunk_size * params_p->resolution] = (height_t)(elevation + (((-m_x + m_y) / 2.0) * h));
-	height_map[(chunk_size * params_p->resolution) + chunk_size] = (height_t)(elevation + (((m_x + m_y) / 2.0) * h));
+	height_map[0] = (height_t)(lift + ((-(m_x+ m_y) / 2.0) * h));
+	height_map[chunk_size] = (height_t)(lift + (((m_x - m_y) / 2.0) * h));
+	height_map[chunk_size * params_p->resolution] = (height_t)(lift + (((-m_x + m_y) / 2.0) * h));
+	height_map[(chunk_size * params_p->resolution) + chunk_size] = (height_t)(lift + (((m_x + m_y) / 2.0) * h));
 
 	while (chunk_size > 1) {
 		// chunk_size should be power of 2.
@@ -122,43 +120,30 @@ height_t* map_trim(height_t* height_map, struct terrain_parameters* params_p, in
 	return new_map;
 }
 
-// Scale map down to 1/'scale by changing tile sizes to 'scale'.
-//TODO: Debug this
+// Alter map granularity changing tile sizes to 'scale'.
 void map_rescale(height_t* height_map, struct terrain_parameters* params_p, int x, int y, int scale) {
 	for (int r = 0; r < y; r += scale) {
-		for (int c = 0; c < x; c += scale) {
-			printf("%3d", height_map[r * x + c]);
+		for (int c = 0; c < x; c +=scale) {
 
-			height_t sample;
-			/*
+			height_t sample = height_map[(r * x) + c]; 
 			for (int r_tile = r; r_tile < (r + scale); ++r_tile) {
 				for (int c_tile = c; c_tile < (c + scale); ++c_tile) {
-					sample = height_map[(r_tile * x) + c_tile];
+					if (c_tile < x && r_tile < y) height_map[r_tile * x + c_tile] = sample;
 				}
 			}
-			sample = height_map[(r * x) + c];
-			for (int r_tile = r; r_tile < (r + scale); ++r_tile) {
-				for (int c_tile = c; c_tile < (c + scale); ++c_tile) {
-					height_map[(r_tile * x) + c_tile] = sample;
-				}
-			}
-			*/
 
 		}
-		printf("\n");
-
 	}
-	printf("\n");
 }
 
-// wrapper for generate and modify functions.
-void map_create(height_t* height_map, struct terrain_parameters params, int x, int y, int scale) {
-/*
-	if (x && y) {
-		//TODO: get resolution automatically to cover dimensions max(x, y), then trim.
-		// Calculate necessary resolution.
-	};
-*/
+// Wrapper for generator and modify functions.
+height_t* map_create(struct terrain_parameters params, int x, int y, int scale) {
+
+	// Get minimum power of 2 necessary for display dimensions.
+	if (x && y) params.resolution = 
+	  ((int)pow(2, floor(log10((double)(x > y ? x : y)) / log10(2)) + 1.0)) + 1;
+
+	height_t* height_map = malloc(params.resolution * params.resolution * sizeof(height_t));
 	terrain_generate(height_map, &params);
 
 	if (x && y) {
@@ -167,14 +152,8 @@ void map_create(height_t* height_map, struct terrain_parameters params, int x, i
 		height_map = trimmed_map;
 	};
 
-//TODO: debug
-	for (int r = 0; r < params.resolution; ++r) {
-		for (int c = 0; c < params.resolution; ++c) {
-			printf("%3d", height_map[r * params.resolution + c]);
-		};
-		printf("\n");
-	}
-	printf("\n");
-	if (scale) map_rescale(height_map, &params, x, y, scale);
+	if (scale > 1) map_rescale(height_map, &params, x, y, scale);
+
+	return height_map;
 }
 

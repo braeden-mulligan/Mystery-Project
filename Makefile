@@ -1,5 +1,5 @@
 CRUFT = *.o
-FLAGS = -std=c99
+FLAGS = -std=c99 -lm
 FLAGS_compile_sdl2 = -I/usr/include/SDL2 -D_REENTRANT
 FLAGS_link_sdl2 = -std=c99 -L/usr/lib/x86_64-linux-gnu -lSDL2
 

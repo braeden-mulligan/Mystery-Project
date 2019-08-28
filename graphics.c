@@ -21,7 +21,7 @@ void set_pixel(uint32_t* pixel, uint8_t alpha, uint8_t red, uint8_t green, uint8
 	(*pixel) = (alpha << 24) | (red << 16) | (green << 8) | blue;
 }
 
-// Terrain map meta-data to help displaying.
+// Height map meta-data to help displaying.
 struct meta_data {
 	int length_x;
 	int length_y;
@@ -29,18 +29,37 @@ struct meta_data {
 	int height_max;
 };
 
-int height_range(int* arr, struct meta_data* data) {
+int find_range(int* map, struct meta_data* data) {
 	int min = INT_MAX;
 	int max = INT_MIN;
 	
 	for(int i = 0; i < ((data->length_x) * (data->length_y)) ; ++i) {
-		if (arr[i] < min) min = arr[i];
-		if (arr[i] > max) max = arr[i];
+		if (map[i] < min) min = map[i];
+		if (map[i] > max) max = map[i];
 	}
 	if ((min == INT_MAX) || (max == INT_MIN)) return 1;
 	data->height_min = min;
 	data->height_max = max;
 	return 0;
+}
+
+void init_meta_data(height_t* map, struct meta_data* data) {
+	find_range(map, data);
+// TODO: find window dimensions
+/*
+	data->length_x = 
+	data->length_y = 
+*/
+}
+
+void print_height_map(height_t* height_map, int x, int y) {
+	for (int r = 0; r < y; ++r) {
+		for (int c = 0; c < x; ++c) {
+			printf("%3d", height_map[r * x + c]);
+		};
+		printf("\n");
+	}
+	printf("\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -50,11 +69,14 @@ int main(int argc, char* argv[]) {
 		if (!strcmp(argv[i], "-g")) gui = true; 
 	}
 
-	// Map parameters.
 	struct terrain_parameters map_params;
 	init_terrain_parameters(&map_params);
 	//map_params.grade_x = 0.9;
 	//map_params.grade_y = 0.9;
+
+	struct meta_data map_meta;
+	map_meta.length_x = 18;
+	map_meta.length_y = 60;
 
 	bool SDL_error = false;
 	//if (gui) {
@@ -68,9 +90,7 @@ int main(int argc, char* argv[]) {
 		}
 	//};
 
-	int n = map_params.resolution;
-	height_t* height_map = malloc(n * n * sizeof(height_t));
-	map_create(height_map, map_params, n, n, 2);
+	height_t* height_map = map_create(map_params, map_meta.length_x, map_meta.length_y, 1);
 	
 	//TODO:error checking.
 	if (gui) {
@@ -86,10 +106,9 @@ int main(int argc, char* argv[]) {
 
 // --- Temporary
 		/*
-		struct meta_data map_data;
-		map_data.length_x = 1366;
-		map_data.length_y = 768;
-		height_range(height_map, &map_data);
+		map_meta.length_x = 1366;
+		map_meta.length_y = 768;
+		height_range(height_map, &map_meta);
 
 		float rescale = 255.0 / ((float) (map_data.height_max - map_data.height_min));
 
@@ -141,13 +160,8 @@ int main(int argc, char* argv[]) {
 			return 1;
 		};
 	}else { 
-		for (int r = 0; r < map_params.resolution; ++r) {
-			for (int c = 0; c < map_params.resolution; ++c) {
-				printf("%3d", height_map[r * map_params.resolution + c]);
-			};
-			printf("\n");
-		}
-		printf("\n");
+
+		print_height_map(height_map, map_meta.length_x, map_meta.length_y);
 
 		/*
 		height_t* display = map_trim(height_map, &map_params, 16, 9);
@@ -159,6 +173,7 @@ int main(int argc, char* argv[]) {
 		}
 		*/
 	};
+	free(height_map);
 
 	return 0;
 }
